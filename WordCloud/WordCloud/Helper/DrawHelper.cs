@@ -1,4 +1,5 @@
 ﻿using SkiaSharp;
+using System.IO;
 using WordCloud.Models;
 
 namespace WordCloud.Helper
@@ -22,6 +23,30 @@ namespace WordCloud.Helper
                 canvas.DrawText(textArea.Words, startX, startY + textArea.Height - textArea.TextRect.Bottom, drawArea.Paint);
                 startY += textArea.Height + drawArea.Margin;
             }
+        }
+
+        /// <summary>
+        /// 从蒙版图片中加载像素
+        /// </summary>
+        /// <param name="imgFile"></param>
+        /// <param name="width"></param>
+        /// <returns></returns>
+        internal static bool[,] LoadPixels(FileInfo imgFile, int width)
+        {
+            using FileStream originStream = File.OpenRead(imgFile.FullName);
+            using SKBitmap originBitmap = SKBitmap.Decode(originStream);
+            var height = (width / originBitmap.Width) * originBitmap.Height;
+            var imgInfo = new SKImageInfo(width, height);
+            var resizeBitmap = originBitmap.Resize(imgInfo, SKFilterQuality.High);
+            SKColor[] colors = resizeBitmap.Pixels;
+            var xLen = resizeBitmap.Width;
+            bool[,] pixels = new bool[resizeBitmap.Height, resizeBitmap.Width];
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (colors[i] == SKColors.Black) continue;
+                pixels[i / xLen, i % xLen] = true;
+            }
+            return pixels;
         }
 
         /// <summary>
@@ -98,7 +123,7 @@ namespace WordCloud.Helper
         {
             int yLen = pixels.GetLength(0);//画布宽
             int xLen = pixels.GetLength(1);//画布长
-            var margin = (int)Math.Ceiling(paint.TextSize * 0.1);//垂直绘制时每个文字之间的上下间距
+            var margin = (int)Math.Ceiling(paint.TextSize * 0.15);//垂直绘制时每个文字之间的上下间距
             var textAreas = GetTextAreas(paint, words, isVertical);
             var width = textAreas.Max(x => x.Width);
             var height = textAreas.Sum(x => x.Height) + (textAreas.Count - 1) * margin;
@@ -117,9 +142,10 @@ namespace WordCloud.Helper
                         continueY = false;
                         break;
                     }
-                    DrawArea drawArea = new DrawArea(textAreas, paint, x, y, width, height, margin, isVertical);
-                    if (CheckAreaAvailable(pixels, drawArea) == false) continue;//区域不可用
-                    drawAreas.Add(drawArea);
+                    if (CheckAreaAvailable(pixels, x, y, width, height))
+                    {
+                        drawAreas.Add(new DrawArea(textAreas, paint, x, y, width, height, margin, isVertical));
+                    }
                 }
             }
             return drawAreas;
@@ -131,18 +157,18 @@ namespace WordCloud.Helper
         /// <param name="pixels"></param>
         /// <param name="drawArea"></param>
         /// <returns></returns>
-        internal static bool CheckAreaAvailable(bool[,] pixels, DrawArea drawArea)
+        internal static bool CheckAreaAvailable(bool[,] pixels, int startX, int startY, int width, int height)
         {
-            for (int y = drawArea.StartY; y <= drawArea.EndY; y += 3)
+            for (int y = startY; y <= startY + height; y += height / 3)
             {
-                for (int x = drawArea.StartX; x <= drawArea.EndX; x++)
+                for (int x = startX; x <= startX + width; x++)
                 {
                     if (pixels[y, x] == true) return false;//某一个坐标中存在像素
                 }
             }
-            for (int y = drawArea.StartY; y <= drawArea.EndY; y++)
+            for (int y = startY; y <= startY + height; y++)
             {
-                for (int x = drawArea.StartX; x <= drawArea.EndX; x += 3)
+                for (int x = startX; x <= startX + width; x += width / 3)
                 {
                     if (pixels[y, x] == true) return false;//某一个坐标中存在像素
                 }

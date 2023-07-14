@@ -29,7 +29,10 @@ namespace WordCloud
 
         public async Task Draw(List<WordItem> wordItems, int width, int height, string fullImageSavePath)
         {
-            int maxFontSize = height;
+            int maxFontSize = Math.Min(width, height);
+            int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
+            maxFontSize = maxFontSize / wordItems.First().Word.Length;
+            int fontSize = maxFontSize;
             SKColor backColor = SKColors.White;
             bool[,] pixels = new bool[height, width];
             var imgInfo = new SKImageInfo(width, height);
@@ -39,18 +42,66 @@ namespace WordCloud
             wordItems = wordItems.OrderByDescending(o => o.Weight).ToList();
             var sumWeight = wordItems.Sum(o => o.Weight);
             var wordScales = wordItems.Select(o => new WordScale(o.Word, o.Weight / sumWeight)).ToList();
-            while (maxFontSize > 10 && wordScales.Count > 0)
+            var wordScale = wordScales.First();
+            var sumScale = wordScales.First().Scale;
+            while (fontSize >= minFontSize && wordScales.Count > 0)
             {
-                var wordScale = wordScales.First();
-                int fontSize = (int)Math.Ceiling(maxFontSize * (wordScale.Scale + 0.2));
+                var scaling = maxFontSize * (1 - sumScale);
+                if (scaling < minFontSize) scaling = minFontSize;
+                fontSize = (int)Math.Min(fontSize, scaling);
                 var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize);
                 if (drawArea is null)
                 {
-                    maxFontSize--;
+                    fontSize--;
                 }
                 else
                 {
                     wordScales.RemoveAt(0);
+                    wordScale = wordScales.FirstOrDefault();
+                    if (wordScale is not null) sumScale += wordScale.Scale;
+                    DrawHelper.UpdatePixels(surface, backColor, drawArea, pixels);
+                }
+            }
+            using SKImage image = surface.Snapshot();
+            using SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
+            using FileStream outputStream = File.OpenWrite(fullImageSavePath);
+            data.SaveTo(outputStream);
+            await Task.CompletedTask;
+        }
+
+        public async Task Draw(List<WordItem> wordItems, FileInfo maskImage, int width, string fullImageSavePath)
+        {
+            bool[,] pixels = DrawHelper.LoadPixels(maskImage, width);
+            int height = pixels.GetLength(0);
+            int maxFontSize = Math.Min(width, height);
+            int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
+            maxFontSize = maxFontSize / wordItems.First().Word.Length;
+            int fontSize = maxFontSize;
+            SKColor backColor = SKColors.White;
+            var imgInfo = new SKImageInfo(width, height);
+            using SKSurface surface = SKSurface.Create(imgInfo);
+            SKCanvas canvas = surface.Canvas;
+            canvas.Clear(backColor);
+            wordItems = wordItems.OrderByDescending(o => o.Weight).ToList();
+            var sumWeight = wordItems.Sum(o => o.Weight);
+            var wordScales = wordItems.Select(o => new WordScale(o.Word, o.Weight / sumWeight)).ToList();
+            var wordScale = wordScales.First();
+            var sumScale = wordScales.First().Scale;
+            while (fontSize >= minFontSize && wordScales.Count > 0)
+            {
+                var scaling = maxFontSize * (1 - sumScale);
+                if (scaling < minFontSize) scaling = minFontSize;
+                fontSize = (int)Math.Min(fontSize, scaling);
+                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize);
+                if (drawArea is null)
+                {
+                    fontSize--;
+                }
+                else
+                {
+                    wordScales.RemoveAt(0);
+                    wordScale = wordScales.FirstOrDefault();
+                    if (wordScale is not null) sumScale += wordScale.Scale;
                     DrawHelper.UpdatePixels(surface, backColor, drawArea, pixels);
                 }
             }
