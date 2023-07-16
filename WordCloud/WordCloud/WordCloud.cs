@@ -49,7 +49,7 @@ namespace WordCloud
                 var scaling = maxFontSize * (1 - sumScale);
                 if (scaling < minFontSize) scaling = minFontSize;
                 fontSize = (int)Math.Min(fontSize, scaling);
-                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize);
+                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize, minFontSize);
                 if (drawArea is null)
                 {
                     fontSize--;
@@ -92,7 +92,7 @@ namespace WordCloud
                 var scaling = maxFontSize * (1 - sumScale);
                 if (scaling < minFontSize) scaling = minFontSize;
                 fontSize = (int)Math.Min(fontSize, scaling);
-                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize);
+                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize, minFontSize);
                 if (drawArea is null)
                 {
                     fontSize--;
@@ -112,12 +112,12 @@ namespace WordCloud
             await Task.CompletedTask;
         }
 
-        private DrawArea? Draw(SKCanvas canvas, bool[,] pixels, string words, int fontSize)
+        private DrawArea Draw(SKCanvas canvas, bool[,] pixels, string words, int fontSize, int minFontSize)
         {
             var paint = DrawHelper.CreatePaint(Typeface, fontSize);
             List<DrawArea> drawAreas = new List<DrawArea>();
-            drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, false));
-            if (UseVertical) drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, true));
+            drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, false));
+            if (UseVertical) drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, true));
             if (drawAreas.Count == 0) return null;
             DrawArea randomArea = drawAreas[new Random().Next(drawAreas.Count)];
             DrawHelper.DrawText(canvas, randomArea);

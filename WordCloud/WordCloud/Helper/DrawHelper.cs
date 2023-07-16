@@ -8,6 +8,7 @@ namespace WordCloud.Helper
     {
         private static readonly Random Random = new Random();
 
+
         /// <summary>
         /// 绘制文字
         /// </summary>
@@ -15,7 +16,31 @@ namespace WordCloud.Helper
         /// <param name="drawArea"></param>
         internal static void DrawText(SKCanvas canvas, DrawArea drawArea)
         {
-            new SKPaint();
+            if (drawArea.DrawType == DrawType.Vertical)
+            {
+                DrawVerticalText(canvas, drawArea);
+                return;
+            }
+            if (drawArea.DrawType == DrawType.Rotational)
+            {
+                DrawRotationalText(canvas, drawArea);
+                return;
+            }
+            if (drawArea.DrawType == DrawType.Horizontal)
+            {
+                DrawHorizontalText(canvas, drawArea);
+                return;
+            }
+            throw new Exception($"未定义文字绘制方式:{drawArea.DrawType}");
+        }
+
+        /// <summary>
+        /// 绘制垂直文字
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="drawArea"></param>
+        internal static void DrawVerticalText(SKCanvas canvas, DrawArea drawArea)
+        {
             int startX = drawArea.StartX;
             int startY = drawArea.StartY;
             foreach (var textArea in drawArea.TextAreas)
@@ -23,6 +48,30 @@ namespace WordCloud.Helper
                 canvas.DrawText(textArea.Words, startX, startY + textArea.Height - textArea.TextRect.Bottom, drawArea.Paint);
                 startY += textArea.Height + drawArea.Margin;
             }
+        }
+
+        /// <summary>
+        /// 绘制翻转文字
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="drawArea"></param>
+        internal static void DrawRotationalText(SKCanvas canvas, DrawArea drawArea)
+        {
+            SKPath path = new SKPath();
+            path.MoveTo(drawArea.StartX, drawArea.StartY);
+            path.LineTo(drawArea.StartX, drawArea.EndY);
+            canvas.DrawTextOnPath(drawArea.Words, path, new(), drawArea.Paint);
+        }
+
+        /// <summary>
+        /// 绘制水平文字
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="drawArea"></param>
+        internal static void DrawHorizontalText(SKCanvas canvas, DrawArea drawArea)
+        {
+            TextArea textArea = drawArea.TextAreas.First();
+            canvas.DrawText(drawArea.Words, drawArea.StartX, drawArea.StartY + drawArea.Height - textArea.TextRect.Bottom, drawArea.Paint);
         }
 
         /// <summary>
@@ -81,18 +130,29 @@ namespace WordCloud.Helper
         /// <param name="words"></param>
         /// <param name="isVertical"></param>
         /// <returns></returns>
-        internal static List<TextArea> GetTextAreas(SKPaint paint, string words, bool isVertical)
+        internal static List<TextArea> GetTextAreas(SKPaint paint, string words, bool isVertical, ref DrawType drawType)
         {
-            if (!isVertical)
+            if (isVertical && words.ContainNumberOrLetter())
             {
-                var textArea = GetTextAreas(paint, words);
-                return new() { textArea };
+                drawType = DrawType.Rotational;
+                SKRect textRect = GetTextRect(paint, words);
+                TextArea area = new TextArea(textRect, paint, textRect.Height, textRect.Width, words);
+                return new() { area };
             }
+            if (isVertical == false)
+            {
+                drawType = DrawType.Horizontal;
+                SKRect textRect = GetTextRect(paint, words);
+                TextArea area = new TextArea(textRect, paint, textRect.Width, textRect.Height, words);
+                return new() { area };
+            }
+            drawType = DrawType.Vertical;
             var textAreas = new List<TextArea>();
             foreach (var word in words)
             {
-                var textArea = GetTextAreas(paint, word.ToString());
-                textAreas.Add(textArea);
+                SKRect textRect = GetTextRect(paint, words);
+                TextArea area = new TextArea(textRect, paint, textRect.Width, textRect.Height, word.ToString());
+                textAreas.Add(area);
             }
             return textAreas;
         }
@@ -103,12 +163,11 @@ namespace WordCloud.Helper
         /// <param name="paint"></param>
         /// <param name="words"></param>
         /// <returns></returns>
-        private static TextArea GetTextAreas(SKPaint paint, string words)
+        private static SKRect GetTextRect(SKPaint paint, string words)
         {
             SKRect textRect = new SKRect();
-            float width = paint.MeasureText(words, ref textRect);
-            float height = textRect.Height;
-            return new TextArea(textRect, width, height, words, paint.TextSize);
+            paint.MeasureText(words, ref textRect);
+            return textRect;
         }
 
         /// <summary>
@@ -119,19 +178,20 @@ namespace WordCloud.Helper
         /// <param name="words"></param>
         /// <param name="isVertical"></param>
         /// <returns></returns>
-        internal static List<DrawArea> GetDrawAreas(bool[,] pixels, SKPaint paint, string words, bool isVertical)
+        internal static List<DrawArea> GetDrawAreas(bool[,] pixels, SKPaint paint, string words, int minFontSize, bool isVertical)
         {
             int yLen = pixels.GetLength(0);//画布宽
             int xLen = pixels.GetLength(1);//画布长
+            var dreaType = DrawType.Horizontal;
+            var textAreas = GetTextAreas(paint, words, isVertical, ref dreaType);
             var margin = (int)Math.Ceiling(paint.TextSize * 0.15);//垂直绘制时每个文字之间的上下间距
-            var textAreas = GetTextAreas(paint, words, isVertical);
             var width = textAreas.Max(x => x.Width);
             var height = textAreas.Sum(x => x.Height) + (textAreas.Count - 1) * margin;
             List<DrawArea> drawAreas = new List<DrawArea>();
             bool continueY = true;
-            for (int y = 0; y < yLen && continueY; y += 3)
+            for (int y = 0; y < yLen && continueY; y += minFontSize)
             {
-                for (int x = 0; x < xLen; x += 3)
+                for (int x = 0; x < xLen; x += minFontSize)
                 {
                     if (x + width >= xLen) //超出画布长
                     {
@@ -142,9 +202,9 @@ namespace WordCloud.Helper
                         continueY = false;
                         break;
                     }
-                    if (CheckAreaAvailable(pixels, x, y, width, height))
+                    if (CheckAreaAvailable(pixels, x, y, width, height, minFontSize))
                     {
-                        drawAreas.Add(new DrawArea(textAreas, paint, x, y, width, height, margin, isVertical));
+                        drawAreas.Add(new DrawArea(textAreas, paint, dreaType, words, x, y, width, height, margin, isVertical));
                     }
                 }
             }
@@ -157,20 +217,35 @@ namespace WordCloud.Helper
         /// <param name="pixels"></param>
         /// <param name="drawArea"></param>
         /// <returns></returns>
-        internal static bool CheckAreaAvailable(bool[,] pixels, int startX, int startY, int width, int height)
+        internal static bool CheckAreaAvailable(bool[,] pixels, int startX, int startY, int width, int height, int minFontSize)
         {
-            for (int y = startY; y <= startY + height; y += height / 3)
+            for (int y = startY; y <= startY + height; y++)
+            {
+                if (pixels[y, startX]) return false;//某一个坐标中存在像素
+                if (pixels[y, startX + width]) return false;//某一个坐标中存在像素
+            }
+
+            for (int x = startX; x <= startX + width; x++)
+            {
+                if (pixels[startY, x]) return false;//某一个坐标中存在像素
+                if (pixels[startY + height, x]) return false;//某一个坐标中存在像素
+            }
+
+            int step = (int)Math.Ceiling(Convert.ToDouble(minFontSize) / 2);
+            if (step < 3) step = 3;
+
+            for (int y = startY + step; y <= startY + height; y += step)
             {
                 for (int x = startX; x <= startX + width; x++)
                 {
-                    if (pixels[y, x] == true) return false;//某一个坐标中存在像素
+                    if (pixels[y, x]) return false;//某一个坐标中存在像素
                 }
             }
             for (int y = startY; y <= startY + height; y++)
             {
-                for (int x = startX; x <= startX + width; x += width / 3)
+                for (int x = startX + step; x <= startX + width; x += step)
                 {
-                    if (pixels[y, x] == true) return false;//某一个坐标中存在像素
+                    if (pixels[y, x]) return false;//某一个坐标中存在像素
                 }
             }
             return true;
