@@ -1,9 +1,4 @@
 ﻿using SkiaSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WordCloud.Helper;
 using WordCloud.Models;
 
@@ -13,7 +8,7 @@ namespace WordCloud
     {
         private SKTypeface Typeface { get; init; }
 
-        private bool UseVertical { get; set; }
+        private bool UseVertical { get; init; }
 
         public WordCloud(string fontName, bool useVertical)
         {
@@ -27,94 +22,102 @@ namespace WordCloud
             this.UseVertical = useVertical;
         }
 
-        public async Task Draw(List<WordItem> wordItems, int width, int height, string fullImageSavePath)
+        /// <summary>
+        /// 绘制矩形词云
+        /// </summary>
+        /// <param name="wordItems">关键词和权重</param>
+        /// <param name="backColor">背景颜色</param>
+        /// <param name="width">长度(像素)</param>
+        /// <param name="height">高度(像素)</param>
+        /// <param name="fullImageSavePath">图片保存路径</param>
+        /// <param name="colors">字体颜色</param>
+        /// <param name="format">图片格式</param>
+        /// <returns></returns>
+        public async Task Draw(List<WordItem> wordItems, SKColor backColor, int width, int height, string fullImageSavePath, SKColor[] colors = null, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
-            int maxFontSize = Math.Min(width, height);
+            int maxFontSize = Math.Max(height, width);
             int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
             maxFontSize = maxFontSize / wordItems.First().Word.Length;
-            int fontSize = maxFontSize;
-            SKColor backColor = SKColors.White;
             bool[,] pixels = new bool[height, width];
-            var imgInfo = new SKImageInfo(width, height);
-            using SKSurface surface = SKSurface.Create(imgInfo);
-            SKCanvas canvas = surface.Canvas;
-            canvas.Clear(backColor);
-            wordItems = wordItems.OrderByDescending(o => o.Weight).ToList();
-            var sumWeight = wordItems.Sum(o => o.Weight);
-            var wordScales = wordItems.Select(o => new WordScale(o.Word, o.Weight / sumWeight)).ToList();
-            var wordScale = wordScales.First();
-            var sumScale = wordScales.First().Scale;
-            while (fontSize >= minFontSize && wordScales.Count > 0)
-            {
-                var scaling = maxFontSize * (1 - sumScale);
-                if (scaling < minFontSize) scaling = minFontSize;
-                fontSize = (int)Math.Min(fontSize, scaling);
-                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize, minFontSize);
-                if (drawArea is null)
-                {
-                    fontSize--;
-                }
-                else
-                {
-                    wordScales.RemoveAt(0);
-                    wordScale = wordScales.FirstOrDefault();
-                    if (wordScale is not null) sumScale += wordScale.Scale;
-                    DrawHelper.UpdatePixels(surface, backColor, drawArea, pixels);
-                }
-            }
-            using SKImage image = surface.Snapshot();
-            using SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
-            using FileStream outputStream = File.OpenWrite(fullImageSavePath);
-            data.SaveTo(outputStream);
-            await Task.CompletedTask;
+            await Draw(wordItems, pixels, backColor, maxFontSize, minFontSize, fullImageSavePath, colors, format);
         }
 
-        public async Task Draw(List<WordItem> wordItems, FileInfo maskImage, int width, string fullImageSavePath)
+        /// <summary>
+        /// 根据蒙版绘制词云
+        /// </summary>
+        /// <param name="wordItems">关键词和权重</param>
+        /// <param name="maskImage">蒙版图片文件，需要填充词云区域必须为纯黑色</param>
+        /// <param name="backColor">背景颜色</param>
+        /// <param name="width">长度(像素)</param>
+        /// <param name="fullImageSavePath">图片保存路径</param>
+        /// <param name="colors">字体颜色</param>
+        /// <param name="format">图片格式</param>
+        /// <returns></returns>
+        public async Task Draw(List<WordItem> wordItems, FileInfo maskImage, SKColor backColor, int width, string fullImageSavePath, SKColor[] colors = null, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
             bool[,] pixels = DrawHelper.LoadPixels(maskImage, width);
             int height = pixels.GetLength(0);
-            int maxFontSize = Math.Min(width, height);
+            int maxFontSize = Math.Max(height, width);
             int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
             maxFontSize = maxFontSize / wordItems.First().Word.Length;
+            await Draw(wordItems, pixels, backColor, maxFontSize, minFontSize, fullImageSavePath, colors, format);
+        }
+
+        /// <summary>
+        /// 绘制矩形词云
+        /// </summary>
+        /// <param name="wordItems">关键词和权重</param>
+        /// <param name="pixels">像素二维数组，true表示已存在像素</param>
+        /// <param name="backColor">背景颜色</param>
+        /// <param name="maxFontSize">最大字体大小</param>
+        /// <param name="minFontSize">最小字体大小</param>
+        /// <param name="fullImageSavePath">图片保存路径</param>
+        /// <param name="colors">字体颜色</param>
+        /// <param name="format">图片格式</param>
+        /// <returns></returns>
+        public async Task Draw(List<WordItem> wordItems, bool[,] pixels, SKColor backColor, int maxFontSize, int minFontSize, string fullImageSavePath, SKColor[] colors = null, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
+        {
+            if (maxFontSize <= 0) maxFontSize = 1;
             int fontSize = maxFontSize;
-            SKColor backColor = SKColors.White;
+            int width = pixels.GetLength(1);
+            int height = pixels.GetLength(0);
             var imgInfo = new SKImageInfo(width, height);
+            var drawItems = wordItems.OrderByDescending(o => o.Weight).ToList();
+            var sumWeight = drawItems.Sum(o => o.Weight);
+            var wordAndScales = drawItems.Select(o => new WordScale(o.Word, o.Weight / sumWeight)).ToList();
+            var wordAndScale = wordAndScales.First();
+            var sumScale = wordAndScales.First().Scale;
             using SKSurface surface = SKSurface.Create(imgInfo);
             SKCanvas canvas = surface.Canvas;
             canvas.Clear(backColor);
-            wordItems = wordItems.OrderByDescending(o => o.Weight).ToList();
-            var sumWeight = wordItems.Sum(o => o.Weight);
-            var wordScales = wordItems.Select(o => new WordScale(o.Word, o.Weight / sumWeight)).ToList();
-            var wordScale = wordScales.First();
-            var sumScale = wordScales.First().Scale;
-            while (fontSize >= minFontSize && wordScales.Count > 0)
+            while (fontSize >= minFontSize && wordAndScales.Count > 0)
             {
-                var scaling = maxFontSize * (1 - sumScale);
-                if (scaling < minFontSize) scaling = minFontSize;
-                fontSize = (int)Math.Min(fontSize, scaling);
-                var drawArea = Draw(canvas, pixels, wordScale.Word, fontSize, minFontSize);
+                var scale = maxFontSize * (1 - sumScale);
+                if (scale < minFontSize) scale = minFontSize;
+                fontSize = (int)Math.Min(fontSize, scale);
+                var drawArea = DrawWords(canvas, pixels, wordAndScale.Word, fontSize, minFontSize, colors);
                 if (drawArea is null)
                 {
                     fontSize--;
                 }
                 else
                 {
-                    wordScales.RemoveAt(0);
-                    wordScale = wordScales.FirstOrDefault();
-                    if (wordScale is not null) sumScale += wordScale.Scale;
+                    wordAndScales.RemoveAt(0);
+                    wordAndScale = wordAndScales.FirstOrDefault();
+                    if (wordAndScale is not null) sumScale += wordAndScale.Scale;
                     DrawHelper.UpdatePixels(surface, backColor, drawArea, pixels);
                 }
             }
             using SKImage image = surface.Snapshot();
-            using SKData data = image.Encode(SKEncodedImageFormat.Jpeg, 100);
+            using SKData data = image.Encode(format, 100);
             using FileStream outputStream = File.OpenWrite(fullImageSavePath);
             data.SaveTo(outputStream);
             await Task.CompletedTask;
         }
 
-        private DrawArea Draw(SKCanvas canvas, bool[,] pixels, string words, int fontSize, int minFontSize)
+        private DrawArea DrawWords(SKCanvas canvas, bool[,] pixels, string words, int fontSize, int minFontSize, SKColor[] colors = null)
         {
-            var paint = DrawHelper.CreatePaint(Typeface, fontSize);
+            var paint = DrawHelper.CreatePaint(Typeface, fontSize, colors);
             List<DrawArea> drawAreas = new List<DrawArea>();
             drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, false));
             if (UseVertical) drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, true));

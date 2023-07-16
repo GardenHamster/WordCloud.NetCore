@@ -1,14 +1,11 @@
 ﻿using SkiaSharp;
-using System.IO;
 using WordCloud.Models;
+using WordCloud.Type;
 
 namespace WordCloud.Helper
 {
     public static class DrawHelper
     {
-        private static readonly Random Random = new Random();
-
-
         /// <summary>
         /// 绘制文字
         /// </summary>
@@ -58,8 +55,9 @@ namespace WordCloud.Helper
         internal static void DrawRotationalText(SKCanvas canvas, DrawArea drawArea)
         {
             SKPath path = new SKPath();
-            path.MoveTo(drawArea.StartX, drawArea.StartY);
-            path.LineTo(drawArea.StartX, drawArea.EndY);
+            TextArea textArea = drawArea.TextAreas.First();
+            path.MoveTo(drawArea.StartX + textArea.TextRect.Bottom, drawArea.StartY);
+            path.LineTo(drawArea.StartX + textArea.TextRect.Bottom, drawArea.EndY);
             canvas.DrawTextOnPath(drawArea.Words, path, new(), drawArea.Paint);
         }
 
@@ -116,7 +114,6 @@ namespace WordCloud.Helper
                 for (int x = drawArea.StartX; x <= drawArea.EndX; x++)
                 {
                     int index = y * xLen + x;
-                    if (colors[index] == SKColor.Empty) continue;
                     if (colors[index] == backColor) continue;
                     pixels[y, x] = true;
                 }
@@ -231,7 +228,7 @@ namespace WordCloud.Helper
                 if (pixels[startY + height, x]) return false;//某一个坐标中存在像素
             }
 
-            int step = (int)Math.Ceiling(Convert.ToDouble(minFontSize) / 2);
+            int step = (int)Math.Ceiling(Convert.ToDouble(minFontSize) / 3);
             if (step < 3) step = 3;
 
             for (int y = startY + step; y <= startY + height; y += step)
@@ -257,12 +254,12 @@ namespace WordCloud.Helper
         /// <param name="typeface"></param>
         /// <param name="fontSize"></param>
         /// <returns></returns>
-        internal static SKPaint CreatePaint(SKTypeface typeface, float fontSize)
+        internal static SKPaint CreatePaint(SKTypeface typeface, float fontSize, SKColor[] colors = null)
         {
             return new()
             {
                 FakeBoldText = false,
-                Color = RandomColor(),
+                Color = colors == null || colors.Length == 0 ? RandomHelper.RandomColor() : colors.Random(),
                 IsAntialias = true,
                 Style = SKPaintStyle.StrokeAndFill,
                 TextAlign = SKTextAlign.Left,
@@ -270,20 +267,6 @@ namespace WordCloud.Helper
                 Typeface = typeface
             };
         }
-
-        /// <summary>
-        /// 随机颜色
-        /// </summary>
-        /// <returns></returns>
-        private static SKColor RandomColor()
-        {
-            byte red = (byte)Random.Next(0, 255);
-            byte green = (byte)Random.Next(0, 255);
-            byte blue = (byte)Random.Next(0, 255);
-            return new SKColor(red, green, blue);
-        }
-
-
 
     }
 }

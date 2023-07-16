@@ -1,0 +1,182 @@
+Linux vs Windows is an age-old battle of the operating systems which has led to wars, disagreements and almost fanatical behavior on the Internet, for what seems like forever. I think it is important to stress that this article will discuss not which is, the best OS  because it is impossible to come to that conclusion. It’s not as simple as comparing Linux and Unix considering how vastly different said OSes are. So, what follows is hopefully a fair review of both these Operating Systems based on different, specific criteria.
+
+Following are the topics we’re going to discuss through this blog.
+
+What is Windows?
+
+What is Linux?
+
+Linux vs Windows
+
+Distributions
+
+Which one is for you?
+
+Conclusion
+
+Linux vs Windows: What is Windows?
+Windows is a licensed operating system and its source code is inaccessible. It is designed for business owners, other commercial user and even individuals with no computer programming knowledge. It is simple and straightforward to use.
+
+Windows offers features like,
+
+Multiple operating environments
+Symmetric multiprocessing
+Client-server computing
+Integrated caching
+Virtual memory
+Portability
+Extensibility
+Preemptive schedulingWindows OS - Linux vs Windows - Edureka
+The first version of Windows, known as Windows 1.0, revealed in 1985 following the formation of Microsoft. It was based upon the MS-DOS core. Following that initial launch, new versions of Windows were quickly rolled out. This included the first major update in 1987 and Windows 3.0 in the same year.
+
+In 1995, perhaps the most widely used version yet, Windows 95 was born. At this point, it ran on a 16-bit DOS-based kernel and 32-bit userspace to enhance the user experience.
+
+Windows hasn’t changed a whole lot in terms of core architecture since this version despite vast amounts of features that have been added to address modern computing.
+
+You can take a look at the video tutorial for a more wholesome Idea of the same.
+
+Linux vs Windows | Comparison Between Linux And Windows | Edureka
+
+This Edureka video on “Linux vs Windows” will help you understand the basic differences between both of these operating systems while giving you an idea about each of the Operating Systems.
+
+Linux vs Windows: What is Linux?Linux OS - Linux vs Windows - Edureka
+Linux is a free and open source operating system based on Unix standards which provides a programming interface as well as user interface compatibility. It also contains many separately developed elements, free from proprietary code.
+
+The traditional monolithic kernel is employed in the Linux kernel for performance purposes. Its modular feature allows most drivers to dynamically load and unload at run time.
+
+Interested in Linux Administration? Check out the Linux certification course online.
+
+Linux was created by Finnish student Linus Torvalds, who wanted to create a free operating system kernel that anyone could use. It was launched much later than Windows, in 1991. Although it still was regarded as a very bare bones operating system, without a graphical interface like Windows. With just a few lines of source code in its original release to where it stands today, containing more than 23.3 million lines of the source code, Linux has surely grown considerably.
+
+Linux was first distributed under GNU General Public License in 1992.
+
+Linux vs Windows
+Users
+There are 3 types of users in Linux (Regular, Administrative(root) and Service users) whereas, in Windows, there are 4 types of user accounts (Administrator, Standard, Child and Guest).
+
+Usage
+Usage - Linux vs Windows - Edureka
+
+According to the market research data, on 92.63% of the world’s PCs, Windows is running, while hardly 1% of PC users use Linux. Many users say it is hard to use Linux as compared to Windows and so the appeal of Linux is very limited for household use. It is mostly meant for serious use such as server application. Hence, corporation servers are running on Linux, irrespective of the GUI.
+
+Also, due to the licensing agreement with Microsoft, various PC vendors are entitled to bundle Windows OS with their PC, enabling Windows to gain market popularity over Linux. Though these days many PC vendors such as Dell and HP have started to give Linux as the pre-installed OS, Windows still rules the market.
+
+Kernel
+Linux uses the monolithic kernel which consumes more running space whereas Windows uses the micro-kernel which takes less space but lowers the system running efficiency than Linux.
+
+ File Systems
+File Systems - Linux vs Windows - Edureka
+
+In Microsoft Windows, files are stored in directories/folders on different data drives like C: D: E: but, in Linux, files are ordered in a tree structure starting with the root directory, further branched out to various other sub-directories.
+
+Course Curriculum
+Linux Administration Certification Training Course
+Instructor-led SessionsReal-life Case StudiesAssignmentsLifetime Access
+In Linux, everything is treated like a file. Directories are files, files are files, and externally connected devices (such as Printer, mouse, keyboard) are also files.
+
+Security
+bugs - Linux vs Windows - Edureka
+
+Every Windows user has faced security and stability issues at some point in time. Since Windows is an extensively used OS, hackers, spammers target Windows frequently. Windows (consumer versions) were originally designed for ease-of-use on a single-user PC without a network connection and did not have security features built in. Microsoft often releases security patches through its Windows Update service. These go out once a month, although critical updates are made available at shorter intervals or when necessary.
+Many a time, users of Windows OS face the BLUE SCREEN OF DEATH. This is caused due to the failure of the system to respond. Eventually, the user has to keep aside his/her frustrations and manually restart the PC.
+
+On the other hand, Linux is based on a multi-user architecture, making it way more stable than a single-user OS like Windows. As Linux is community-driven with regular monitoring by the developers from every corner of the earth, any new problem raised can be solved within a few hours and the necessary patch can be ready for supply.
+
+Compatibility
+Compatibility - Linux vs Windows - Edureka
+
+Windows shoots. Windows scores. This is where the Redmond offering wipes the floor with Linux. Despite recent improvements in software being ported or developed to Linux, Windows is still the king of compatibility.
+
+Users of Windows can be certain that almost any software(even the most obscure, outdated software) will work, even when it is abandoned by developers. Windows has great legacy support. Plain and simple.
+
+Linux, on the other hand, has been struggling with basics that Windows users take for granted.
+
+Ease of Use
+
+Ease - Linux vs Windows - Edureka
+
+Linux, over recent years, has gone leaps and bounds when it comes to usability. Distributions like Linux Mint and Ubuntu, have even gone as far as making their installation and setup simpler for non-technical users to do carry on with day-to-day activities with the utmost ease.
+
+Windows, due to its market proliferation, is the default OS on many devices. Buy a new laptop or PC, and there is quite the chance it comes with Windows 10 installed. Users are used to clicking the toolbar and opening their favourite programs, for so many years now that it makes it very difficult for them to make the switch.
+
+Privacy
+Privacy - Linux vs Windows - Edureka
+
+If you are a Linux user, you have an operating system that doesn’t spy on you. Having Linux means the system is yours and yours alone. You can also add to the mix that most Linux systems come with an option of built-in military-grade encryption. As a user, you can be sure that device theft poses no real problem to your data.
+
+On the contrary, Windows has gotten more advert driven over the last few years. Users are definitely given the choice to opt out but then again, who can help the clever registry hacks which are clearly a part of Redmond’s plan. Windows can watch what users do, offering to sync to the Microsoft One-Drive service or to learn behavior to make Cortana (the Microsoft personal assistant) better. To be honest, I do not favor these tools, as they’re pretty intrusive. Though, some users like these features. Subjective opinion.
+
+Source Code
+Linux is an open source operating system whereas Windows OS is commercial. Linux has access to source code and alters the code as per user need whereas Windows does not have access to the source code.
+
+In Linux, the user has access to the source code of the kernel and alter the code according to his need. It has its own advantages. Bugs in the OS will get fixed at a rapid pace but developers may take advantage of any weakness in the OS if found.
+
+In windows only selected members to have access to the source code.
+
+License
+License - Linux vs Windows - Edureka
+
+Operating Systems Training
+The Linux kernel (and the GNU utilities and libraries which accompany it) in most distributions are entirely free and open source. Companies offer paid support for their distros, but the underlying software is still free to download and install.
+
+Microsoft Windows is generally priced between $99.00 and $199.00 USD for each licensed copy. Windows 10 was originally being offered as a free upgrade if owners of Windows 7/8/8.1 upgraded before July 29, 2016, but that offer is no longer available.
+
+Reliability
+Windows, as we all have come to know, becomes sluggish by the day. You have to re-install Windows after a while when you encounter crashes or slowdowns on your system.
+
+If you are a Linux user, you will not have to re-install it just to experience a faster and a smoother system. Linux helps your system run smoothly for a longer period. Much longer! in fact.
+
+Also, as a Windows user, you will have to develop a habit where you keep on rebooting the system for just about everything.
+
+Just installed software – reboot!
+
+Uninstalled software – reboot!
+
+Got a Windows update – reboot!
+
+System seems to slow down, you guessed it right – reboot!
+
+However, in the case of Linux, you can comfortably continue with your work, and your OS will not bother you.
+
+This is probably why you could observe that most of the Internet giants like Facebook and Google run on Linux. Even supercomputers run mostly on Linux.
+
+So, why isn’t Windows preferred over Linux in the industries? It is because Linux is far more reliable than Windows OS. Period.
+
+Linux vs Windows: Distributions
+Linux Distros - Linux vs Windows - Edureka
+Firstly, we need to address one of the more confusing aspects to the Linux platform. While Windows has maintained quite the standard version structure, with updates and versions split into tiers, Linux is far more complex.
+
+Originally designed as an OS accessible to all, the Linux Kernel today underpins all Linux operating systems. However, as it remains open source, anyone can tweak or modify the OS for their own purposes. What we have as a result are hundreds of bespoke Linux-based OS called distributions, or ‘distros’. This makes it incredibly difficult to choose between them, making it far more complicated than simply picking Windows 7, Windows 8 or Windows 10.
+
+But this also comes with its set of advantages. Given the nature of open source software, these distributions can vary wildly in functionality and sophistication, and many are constantly evolving. The choice is almost overwhelming.
+
+For those of you who are new to Linux, we’d recommend Ubuntu as a good starting point. It’s extremely user-friendly (even compared to Windows) whilst still being versatile and feature-rich enough to satisfy experienced techies. It’s the closest thing Linux has to a default distribution – although I’d urge everyone to explore the various distro options available and find their favourite.
+
+Linux vs Windows: Which one is for you?
+This depends on what you need to do.
+
+Multimediamultimedia - linux vs windows - edureka
+Both Linux and Windows OS are pretty rich in multimedia applications. Although, setting up the sound and video options in older versions of Linux can be relatively difficult for some users. A key advantage of Linux is that most of the multimedia applications are freely available. In the case of Windows, users may have to pay a hefty price to get the software although many Open Source/free versions are often available.
+
+Gaming
+Gaming - Linux vs Windows - EdurekaIf you are a gamer, need 100% compatibility with a particular software or want a user-friendly system, Hands down, Windows wins. Steam, among other clients and options, provides a huge number of games both from AAA publishers and small indie developers. Steam for Linux now allows you to install Windows games. But it is still in beta, and not all Windows games will work. It can be frustrating for Linux users, and no doubt the situation will change in the future.
+
+But for now, in 2018, many Linux users miss out on the top games with their choice of OS. The graphics card vendors also tend to support Windows platforms rather than Linux. They provide timely updates and new features that don’t always filter to other OS.
+
+Course Curriculum
+Linux Administration Certification Training Course
+Weekday / Weekend Batches
+Open Source
+If you are an advocate of open-source software or just plain tired of all the forced update and reboot in Windows, then Linux may be a viable option.
+
+ProgrammingCoding - Linux vs Windows - Edureka
+Linux supports almost all of the major programming languages (Python, C/C++, Java, Ruby, Perl, etc.). Moreover, it portrays a vast range of applications useful for programming purposes.
+
+The Linux terminal is far more superior to use over Window’s command line for developers. You would find many libraries natively developed for Linux. Also, a lot of programmers point out that they can do things easily using the package manager on Linux. The ability to script in different shells is also one of the most compelling reasons why programmers prefer using Linux OS.
+
+Linux brings in native support for SSH, too. This would help you manage your servers quickly. You could include things like apt-get commands which further makes Linux a more popular choice of the programmers.
+
+Linux vs Windows: Conclusion
+I hope this article has been successful in giving you a more objective look at both systems. I haven’t discussed every criterion to compare Linux vs Windows, as there are just too many. There are also some age-old cliches about the respective systems that serve no one. I prefer to not pay attention to them and advise you do the same. I use Windows and Linux in equal measure based on what I need to do either by dual boot or virtualisation.
+
+So, Linux vs Windows? This platform is open for arguments. Are your pitchforks ready?
