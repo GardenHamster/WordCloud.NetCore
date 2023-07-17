@@ -16,7 +16,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="Fonts\幼圆.ttf">
+		<None Update="Fonts\hywenhei85w.ttf">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Fonts\youyuan.ttf">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="Mask\mask.png">

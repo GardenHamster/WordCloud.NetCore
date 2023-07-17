@@ -1,32 +1,36 @@
-﻿using SkiaSharp;
+﻿using JiebaNet.Segmenter;
+using SkiaSharp;
 using WordCloud.Models;
 
 var txt_en = File.ReadAllText(@"Text\txt_en.txt");
 var txt_zh = File.ReadAllText(@"Text\txt_zh.txt");
 
-var wordWeightPairs1 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWeight(txt_zh, 250);
-var wordWeightPairs2 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWeight(txt_en, 250);
+var wordWeightPairs1 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWeight(txt_zh, 500).OrderByDescending(o => o.Weight);
+var wordWeightPairs2 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWeight(txt_en, 500).OrderByDescending(o => o.Weight);
 
-var wordItems1 = wordWeightPairs1.Select(o => new WordItem(o.Word, o.Weight)).ToList();
-var wordItems2 = wordWeightPairs2.Select(o => new WordItem(o.Word, o.Weight)).ToList();
+var wordItems1 = wordWeightPairs1.Select(o => o.Word).ToList();
+var wordItems2 = wordWeightPairs2.Select(o => o.Word).ToList();
 
-var wordCloud = new WordCloud.WordCloud(new FileInfo("Fonts\\幼圆.TTF"), true);
-
+var step = 3;
+var fontFile = new FileInfo("Fonts\\hywenhei85w.ttf");
+var maskFile = new FileInfo("Mask\\mask.png");
+var wordCloud = new WordCloud.WordCloud(fontFile, true, step);
 var debug = false;
 
-if (debug)
+if (debug == true)
 {
-    await wordCloud.Draw(wordItems1, SKColors.White, 1000, 1000, "E:\\test\\wordcloud.jpg");
+    await wordCloud.Draw(wordItems1, 1000, 1000, "E:\\test\\wordcloud.jpg");
 }
-else
+
+if (debug == false)
 {
-    Task task1 = wordCloud.Draw(wordItems1, SKColors.White, 500, 1200, "E:\\test\\wordcloud1.jpg");
-    Task task2 = wordCloud.Draw(wordItems1, SKColors.White, 1200, 500, "E:\\test\\wordcloud2.jpg");
-    Task task3 = wordCloud.Draw(wordItems1, SKColors.White, 1000, 1000, "E:\\test\\wordcloud3.jpg", new[] { SKColors.LightGreen, SKColors.LightPink, SKColors.LightBlue });
-    Task task4 = wordCloud.Draw(wordItems1, SKColors.White, 300, 300, "E:\\test\\wordcloud4.jpg");
-    Task task5 = wordCloud.Draw(wordItems2, SKColors.White, 1000, 1000, "E:\\test\\wordcloud5.jpg");
-    Task task6 = wordCloud.Draw(wordItems1, new FileInfo("Mask\\mask.png"), SKColors.White, 1000, "E:\\test\\wordcloud6.jpg");
-    Task task7 = wordCloud.Draw(wordItems2, new FileInfo("Mask\\mask.png"), SKColors.White, 1000, "E:\\test\\wordcloud7.jpg");
+    Task task1 = wordCloud.Draw(wordItems1, 500, 1200, "E:\\test\\wordcloud1.jpg");
+    Task task2 = wordCloud.Draw(wordItems1, 1200, 500, "E:\\test\\wordcloud2.jpg");
+    Task task3 = wordCloud.Draw(wordItems1, 1000, 1000, "E:\\test\\wordcloud3.jpg");
+    Task task4 = wordCloud.Draw(wordItems1, 300, 300, "E:\\test\\wordcloud4.jpg");
+    Task task5 = wordCloud.Draw(wordItems2, 1000, 1000, "E:\\test\\wordcloud5.jpg");
+    Task task6 = wordCloud.Draw(wordItems1, maskFile, 1500, "E:\\test\\wordcloud6.jpg");
+    Task task7 = wordCloud.Draw(wordItems2, maskFile, 1500, "E:\\test\\wordcloud7.jpg");
     Task.WaitAll(task1, task2, task3, task4, task5, task6, task7);
 }
 

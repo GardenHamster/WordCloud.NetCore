@@ -173,9 +173,11 @@ namespace WordCloud.Helper
         /// <param name="pixels"></param>
         /// <param name="paint"></param>
         /// <param name="words"></param>
+        /// <param name="minFontSize"></param>
         /// <param name="isVertical"></param>
+        /// <param name="step"></param>
         /// <returns></returns>
-        internal static List<DrawArea> GetDrawAreas(bool[,] pixels, SKPaint paint, string words, int minFontSize, bool isVertical)
+        internal static List<DrawArea> GetDrawAreas(bool[,] pixels, SKPaint paint, string words, int minFontSize, bool isVertical, int step)
         {
             int yLen = pixels.GetLength(0);//画布宽
             int xLen = pixels.GetLength(1);//画布长
@@ -186,9 +188,9 @@ namespace WordCloud.Helper
             var height = textAreas.Sum(x => x.Height) + (textAreas.Count - 1) * margin;
             List<DrawArea> drawAreas = new List<DrawArea>();
             bool continueY = true;
-            for (int y = 0; y < yLen && continueY; y += minFontSize)
+            for (int y = 0; y < yLen && continueY; y += step)
             {
-                for (int x = 0; x < xLen; x += minFontSize)
+                for (int x = 0; x < xLen; x += step)
                 {
                     if (x + width >= xLen) //超出画布长
                     {
@@ -212,7 +214,11 @@ namespace WordCloud.Helper
         /// 检查一个区域是否可以绘制文字
         /// </summary>
         /// <param name="pixels"></param>
-        /// <param name="drawArea"></param>
+        /// <param name="startX"></param>
+        /// <param name="startY"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="minFontSize"></param>
         /// <returns></returns>
         internal static bool CheckAreaAvailable(bool[,] pixels, int startX, int startY, int width, int height, int minFontSize)
         {
@@ -253,8 +259,9 @@ namespace WordCloud.Helper
         /// </summary>
         /// <param name="typeface"></param>
         /// <param name="fontSize"></param>
+        /// <param name="colors"></param>
         /// <returns></returns>
-        internal static SKPaint CreatePaint(SKTypeface typeface, float fontSize, SKColor[] colors = null)
+        internal static SKPaint CreatePaint(SKTypeface typeface, float fontSize, SKColor[] colors)
         {
             return new()
             {
