@@ -12,7 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\WordCloud\WordCloud.csproj" />
+		<ProjectReference Include="..\WordCloud\WordCloud.NetCore.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

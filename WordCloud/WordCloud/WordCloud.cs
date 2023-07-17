@@ -10,12 +10,22 @@ namespace WordCloud
 
         private bool UseVertical { get; init; }
 
+        /// <summary>
+        /// 初始化词云
+        /// </summary>
+        /// <param name="fontName">字体名称</param>
+        /// <param name="useVertical">允许垂直绘制字体</param>
         public WordCloud(string fontName, bool useVertical)
         {
             this.Typeface = SKTypeface.FromFamilyName(fontName);
             this.UseVertical = useVertical;
         }
 
+        /// <summary>
+        /// 初始化词云
+        /// </summary>
+        /// <param name="fontFile">字体文件</param>
+        /// <param name="useVertical">允许垂直绘制字体</param>
         public WordCloud(FileInfo fontFile, bool useVertical)
         {
             this.Typeface = SKTypeface.FromFile(fontFile.FullName);
