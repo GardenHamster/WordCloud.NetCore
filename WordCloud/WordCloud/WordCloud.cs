@@ -59,13 +59,13 @@ namespace WordCloud
         /// <param name="fullImageSavePath">图片保存路径</param>
         /// <param name="format">图片格式</param>
         /// <returns></returns>
-        public async Task Draw(List<string> words, int width, int height, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
+        public async Task<FileInfo> Draw(List<string> words, int width, int height, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
             int maxFontSize = Math.Min(height, width);
             int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
             maxFontSize = maxFontSize / words.First().Length;
             bool[,] pixels = new bool[height, width];
-            await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
+            return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
         /// <summary>
@@ -79,10 +79,10 @@ namespace WordCloud
         /// <param name="fullImageSavePath">图片保存路径</param>
         /// <param name="format">图片格式</param>
         /// <returns></returns>
-        public async Task Draw(List<string> words, int width, int height, int maxFontSize, int minFontSize, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
+        public async Task<FileInfo> Draw(List<string> words, int width, int height, int maxFontSize, int minFontSize, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
             bool[,] pixels = new bool[height, width];
-            await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
+            return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
         /// <summary>
@@ -94,14 +94,14 @@ namespace WordCloud
         /// <param name="fullImageSavePath">图片保存路径</param>
         /// <param name="format">图片格式</param>
         /// <returns></returns>
-        public async Task Draw(List<string> words, FileInfo maskImage, int width, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
+        public async Task<FileInfo> Draw(List<string> words, FileInfo maskImage, int width, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
             bool[,] pixels = DrawHelper.LoadPixels(maskImage, width);
             int height = pixels.GetLength(0);
             int maxFontSize = Math.Min(height, width);
             int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
             maxFontSize = maxFontSize / words.First().Length;
-            await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
+            return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
 
@@ -116,10 +116,10 @@ namespace WordCloud
         /// <param name="fullImageSavePath">图片保存路径</param>
         /// <param name="format">图片格式</param>
         /// <returns></returns>
-        public async Task Draw(List<string> words, FileInfo maskImage, int width, int maxFontSize, int minFontSize, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
+        public async Task<FileInfo> Draw(List<string> words, FileInfo maskImage, int width, int maxFontSize, int minFontSize, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
             bool[,] pixels = DrawHelper.LoadPixels(maskImage, width);
-            await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
+            return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace WordCloud
         /// <param name="fullImageSavePath">图片保存路径</param>
         /// <param name="format">图片格式</param>
         /// <returns></returns>
-        public async Task Draw(List<string> words, bool[,] pixels, int maxFontSize, int minFontSize, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
+        public async Task<FileInfo> Draw(List<string> words, bool[,] pixels, int maxFontSize, int minFontSize, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
             if (words is null || words.Count == 0)
             {
@@ -176,11 +176,17 @@ namespace WordCloud
                     DrawHelper.UpdatePixels(surface, BackColor, drawArea, pixels, minFontSize);
                 }
             }
+            var saveDirPath = Path.GetDirectoryName(fullImageSavePath);
+            if (Directory.Exists(saveDirPath) == false)
+            {
+                Directory.CreateDirectory(saveDirPath);
+            }
             using SKImage image = surface.Snapshot();
             using SKData data = image.Encode(format, 100);
             using FileStream outputStream = File.OpenWrite(fullImageSavePath);
             data.SaveTo(outputStream);
-            await Task.CompletedTask;
+            FileInfo fileInfo = new FileInfo(fullImageSavePath);
+            return await Task.FromResult(fileInfo);
         }
 
         private DrawArea DrawWords(SKCanvas canvas, bool[,] pixels, string words, int fontSize, int minFontSize)
