@@ -161,7 +161,12 @@ namespace WordCloud
             while (fontSize >= minFontSize && drawWords.Count > 0)
             {
                 var drawArea = DrawWords(canvas, pixels, drawWords.First(), fontSize, minFontSize);
-                if (drawArea is null)
+                if (fontSize == minFontSize)
+                {
+                    drawWords.RemoveAt(0);
+                    continue;
+                }
+                else if (drawArea is null)
                 {
                     fontSize--;
                 }
