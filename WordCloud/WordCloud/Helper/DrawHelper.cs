@@ -82,7 +82,7 @@ namespace WordCloud.Helper
         {
             using FileStream originStream = File.OpenRead(imgFile.FullName);
             using SKBitmap originBitmap = SKBitmap.Decode(originStream);
-            var height = (width / originBitmap.Width) * originBitmap.Height;
+            var height = (int)Math.Ceiling((Convert.ToDecimal(width) / originBitmap.Width) * originBitmap.Height);
             var imgInfo = new SKImageInfo(width, height);
             var resizeBitmap = originBitmap.Resize(imgInfo, SKFilterQuality.High);
             SKColor[] colors = resizeBitmap.Pixels;
