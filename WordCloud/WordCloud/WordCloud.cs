@@ -161,7 +161,7 @@ namespace WordCloud
             while (fontSize >= minFontSize && drawWords.Count > 0)
             {
                 var drawArea = DrawWords(canvas, pixels, drawWords.First(), fontSize, minFontSize);
-                if (fontSize == minFontSize)
+                if (drawArea is null && fontSize == minFontSize)
                 {
                     drawWords.RemoveAt(0);
                     continue;
@@ -173,7 +173,7 @@ namespace WordCloud
                 else
                 {
                     drawWords.RemoveAt(0);
-                    DrawHelper.UpdatePixels(surface, BackColor, drawArea, pixels);
+                    DrawHelper.UpdatePixels(surface, BackColor, drawArea, pixels, minFontSize);
                 }
             }
             using SKImage image = surface.Snapshot();

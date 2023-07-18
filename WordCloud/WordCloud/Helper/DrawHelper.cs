@@ -103,19 +103,33 @@ namespace WordCloud.Helper
         /// <param name="backColor"></param>
         /// <param name="drawArea"></param>
         /// <param name="pixels"></param>
-        internal static void UpdatePixels(SKSurface surface, SKColor backColor, DrawArea drawArea, bool[,] pixels)
+        /// <param name="minFontsize"></param>
+        internal static void UpdatePixels(SKSurface surface, SKColor backColor, DrawArea drawArea, bool[,] pixels, int minFontsize)
         {
-            int xLen = pixels.GetLength(1);
-            using SKImage image = surface.Snapshot();
-            using SKBitmap bitmap = SKBitmap.FromImage(image);
-            SKColor[] colors = bitmap.Pixels;
-            for (int y = drawArea.StartY; y <= drawArea.EndY; y++)
+            if (drawArea.Paint.TextSize <= minFontsize)
             {
-                for (int x = drawArea.StartX; x <= drawArea.EndX; x++)
+                for (int y = drawArea.StartY; y <= drawArea.EndY; y++)
                 {
-                    int index = y * xLen + x;
-                    if (colors[index] == backColor) continue;
-                    pixels[y, x] = true;
+                    for (int x = drawArea.StartX; x <= drawArea.EndX; x++)
+                    {
+                        pixels[y, x] = true;
+                    }
+                }
+            }
+            else
+            {
+                int xLen = pixels.GetLength(1);
+                using SKImage image = surface.Snapshot();
+                using SKBitmap bitmap = SKBitmap.FromImage(image);
+                SKColor[] colors = bitmap.Pixels;
+                for (int y = drawArea.StartY; y <= drawArea.EndY; y++)
+                {
+                    for (int x = drawArea.StartX; x <= drawArea.EndX; x++)
+                    {
+                        int index = y * xLen + x;
+                        if (colors[index] == backColor) continue;
+                        pixels[y, x] = true;
+                    }
                 }
             }
         }
@@ -126,6 +140,7 @@ namespace WordCloud.Helper
         /// <param name="paint"></param>
         /// <param name="words"></param>
         /// <param name="isVertical"></param>
+        /// <param name="drawType"></param>
         /// <returns></returns>
         internal static List<TextArea> GetTextAreas(SKPaint paint, string words, bool isVertical, ref DrawType drawType)
         {
@@ -234,8 +249,7 @@ namespace WordCloud.Helper
                 if (pixels[startY + height, x]) return false;//某一个坐标中存在像素
             }
 
-            int step = (int)Math.Ceiling(Convert.ToDouble(minFontSize) / 3);
-            if (step < 3) step = 3;
+            int step = minFontSize / 2 < 1 ? 1 : minFontSize / 2;
 
             for (int y = startY + step; y <= startY + height; y += step)
             {
@@ -244,9 +258,10 @@ namespace WordCloud.Helper
                     if (pixels[y, x]) return false;//某一个坐标中存在像素
                 }
             }
-            for (int y = startY; y <= startY + height; y++)
+
+            for (int x = startX + step; x <= startX + width; x += step)
             {
-                for (int x = startX + step; x <= startX + width; x += step)
+                for (int y = startY; y <= startY + height; y++)
                 {
                     if (pixels[y, x]) return false;//某一个坐标中存在像素
                 }
