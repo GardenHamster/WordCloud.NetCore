@@ -61,10 +61,10 @@ namespace WordCloud
         /// <returns></returns>
         public async Task<FileInfo> Draw(List<string> words, int width, int height, string fullImageSavePath, SKEncodedImageFormat format = SKEncodedImageFormat.Jpeg)
         {
-            int maxFontSize = Math.Min(height, width);
-            int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
-            maxFontSize = maxFontSize / words.First().Length;
             bool[,] pixels = new bool[height, width];
+            int minSide = Math.Min(height, width);
+            int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(minSide) / 100);
+            int maxFontSize = (int)Math.Ceiling(Convert.ToDecimal(minSide) / words.First().Length * 0.8m);
             return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
@@ -98,9 +98,9 @@ namespace WordCloud
         {
             bool[,] pixels = DrawHelper.LoadPixels(maskImage, width);
             int height = pixels.GetLength(0);
-            int maxFontSize = Math.Min(height, width);
-            int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(maxFontSize) / 100);
-            maxFontSize = maxFontSize / words.First().Length;
+            int minSide = Math.Min(height, width);
+            int minFontSize = (int)Math.Ceiling(Convert.ToDecimal(minSide) / 100);
+            int maxFontSize = (int)Math.Ceiling(Convert.ToDecimal(minSide) / words.First().Length * 0.8m);
             return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
