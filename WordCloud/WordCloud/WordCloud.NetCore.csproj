@@ -10,6 +10,7 @@
 		<Authors>GardenHamster</Authors>
 		<Product>WordCloud.Netcore</Product>
 		<PackageProjectUrl>https://github.com/GardenHamster/WordCloud.NetCore</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/GardenHamster/WordCloud.NetCore</RepositoryUrl>
 		<Description>一个适用于 .net core 6.0 的基于 SkiaSharp的 跨平台词云库</Description>
 		<PackageReleaseNotes></PackageReleaseNotes>
 	</PropertyGroup>
