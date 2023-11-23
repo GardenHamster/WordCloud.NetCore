@@ -253,7 +253,7 @@ namespace WordCloud
                         continueY = false;
                         break;
                     }
-                    if (DrawHelper.CheckAreaAvailable(pixels, x, y, width, height, minFontSize))
+                    if (pixels.CheckAreaAvailable(x, y, width, height, minFontSize))
                     {
                         var drawArea = new DrawArea(textAreas, drawType, words, fontSize, x, y, width, height, margin, isVertical);
                         drawAreas.Add(drawArea);

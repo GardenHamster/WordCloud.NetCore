@@ -150,7 +150,7 @@ namespace WordCloud.Helper
         /// <param name="height"></param>
         /// <param name="minFontSize"></param>
         /// <returns></returns>
-        internal static bool CheckAreaAvailable(bool[,] pixels, int startX, int startY, int width, int height, int minFontSize)
+        internal static bool CheckAreaAvailable(this bool[,] pixels, int startX, int startY, int width, int height, int minFontSize)
         {
             for (int y = startY; y <= startY + height; y++)
             {
