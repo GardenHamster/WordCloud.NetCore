@@ -1,5 +1,4 @@
-﻿using SkiaSharp;
-using WordCloud.Type;
+﻿using WordCloud.Type;
 
 namespace WordCloud.Models
 {
@@ -14,11 +13,11 @@ namespace WordCloud.Models
         public int Height { get; init; }
         public int Margin { get; init; }
         public bool IsVertical { get; init; }
-        public SKPaint Paint { get; init; }
+        public int FontSize { get; init; }
         public DrawType DrawType { get; set; }
         public List<TextArea> TextAreas { get; init; }
 
-        public DrawArea(List<TextArea> textAreas, SKPaint paint, DrawType drawType, string words, int startX, int startY, int width, int height, int margin, bool isVertical)
+        public DrawArea(List<TextArea> textAreas, DrawType drawType, string words, int fontSize, int startX, int startY, int width, int height, int margin, bool isVertical)
         {
             this.Words = words;
             this.StartX = startX;
@@ -31,7 +30,7 @@ namespace WordCloud.Models
             this.IsVertical = isVertical;
             this.TextAreas = textAreas;
             this.DrawType = drawType;
-            this.Paint = paint;
+            this.FontSize = fontSize;
         }
 
     }

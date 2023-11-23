@@ -1,8 +1,4 @@
-﻿using JiebaNet.Segmenter;
-using SkiaSharp;
-using WordCloud.Models;
-
-var txt_en = File.ReadAllText(@"Text\txt_en.txt");
+﻿var txt_en = File.ReadAllText(@"Text\txt_en.txt");
 var txt_zh = File.ReadAllText(@"Text\txt_zh.txt");
 
 var wordWeightPairs1 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWeight(txt_zh, 500).OrderByDescending(o => o.Weight);

@@ -1,20 +1,21 @@
 ﻿using SkiaSharp;
 using WordCloud.Helper;
 using WordCloud.Models;
+using WordCloud.Type;
 
 namespace WordCloud
 {
-    public class WordCloud
+    public class WordCloud : IDisposable
     {
-        public SKTypeface Typeface { get; init; }
+        private SKTypeface Typeface { get; init; }
 
-        public SKColor[] Colors { get; init; }
+        private SKColor[] Colors { get; init; }
 
-        public SKColor BackColor { get; init; }
+        private SKColor BackColor { get; init; }
 
-        public bool UseVertical { get; init; }
+        private bool UseVertical { get; init; }
 
-        public int Step { get; init; }
+        private int Step { get; init; }
 
         /// <summary>
         /// 初始化词云
@@ -104,7 +105,6 @@ namespace WordCloud
             return await Draw(words, pixels, maxFontSize, minFontSize, fullImageSavePath, format);
         }
 
-
         /// <summary>
         /// 根据蒙版绘制词云
         /// </summary>
@@ -152,10 +152,10 @@ namespace WordCloud
             {
                 throw new Exception("minFontSize必须小于等于maxFontSize");
             }
-            var imgInfo = new SKImageInfo(width, height);
             int fontSize = maxFontSize;
+            var imgInfo = new SKImageInfo(width, height);
             using SKSurface surface = SKSurface.Create(imgInfo);
-            SKCanvas canvas = surface.Canvas;
+            using SKCanvas canvas = surface.Canvas;
             canvas.Clear(BackColor);
             List<string> drawWords = words.ToList();
             while (fontSize >= minFontSize && drawWords.Count > 0)
@@ -173,10 +173,10 @@ namespace WordCloud
                 else
                 {
                     drawWords.RemoveAt(0);
-                    DrawHelper.UpdatePixels(surface, BackColor, drawArea, pixels, minFontSize);
+                    pixels.UpdatePixels(surface, BackColor, drawArea, fontSize, minFontSize);
                 }
             }
-            var saveDirPath = Path.GetDirectoryName(fullImageSavePath);
+            string saveDirPath = Path.GetDirectoryName(fullImageSavePath);
             if (Directory.Exists(saveDirPath) == false)
             {
                 Directory.CreateDirectory(saveDirPath);
@@ -191,27 +191,153 @@ namespace WordCloud
 
         private DrawArea DrawWords(SKCanvas canvas, bool[,] pixels, string words, int fontSize, int minFontSize)
         {
-            var paint = DrawHelper.CreatePaint(Typeface, fontSize, Colors);
-            bool isVertical = new Random().Next(2) < 1;
-            List<DrawArea> drawAreas = new List<DrawArea>();
+            var drawAreas = new List<DrawArea>();
+            var isVertical = new Random().Next(2) < 1;
+
             if (UseVertical && isVertical)
             {
-                drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, true, Step));
+                drawAreas.AddRange(GetDrawAreas(pixels, words, fontSize, minFontSize, true, Step));
             }
             else
             {
-                drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, false, Step));
+                drawAreas.AddRange(GetDrawAreas(pixels, words, fontSize, minFontSize, false, Step));
             }
 
             if (drawAreas.Count == 0 && UseVertical && isVertical == false)
             {
-                drawAreas.AddRange(DrawHelper.GetDrawAreas(pixels, paint, words, minFontSize, true, Step));
+                drawAreas.AddRange(GetDrawAreas(pixels, words, fontSize, minFontSize, true, Step));
             }
 
-            if (drawAreas.Count == 0) return null;
-            DrawArea randomArea = drawAreas[new Random().Next(drawAreas.Count)];
-            DrawHelper.DrawText(canvas, randomArea);
+            if (drawAreas.Count == 0)
+            {
+                return null;
+            }
+
+            DrawArea randomArea = drawAreas.Random();
+            using SKPaint paint = CreatePaint(fontSize);
+            canvas.DrawText(randomArea, paint);
             return randomArea;
+        }
+
+        /// <summary>
+        /// 获取可用的文字绘制区域
+        /// </summary>
+        /// <param name="pixels"></param>
+        /// <param name="words"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="minFontSize"></param>
+        /// <param name="isVertical"></param>
+        /// <param name="step"></param>
+        /// <returns></returns>
+        private List<DrawArea> GetDrawAreas(bool[,] pixels, string words, int fontSize, int minFontSize, bool isVertical, int step)
+        {
+            var continueY = true;
+            var drawType = DrawType.Horizontal;
+            int yLen = pixels.GetLength(0);//画布宽
+            int xLen = pixels.GetLength(1);//画布长
+            var textAreas = GetTextAreas(words, fontSize, isVertical, ref drawType);
+            var margin = (int)Math.Ceiling(fontSize * 0.15);//垂直绘制时每个文字之间的上下间距
+            var width = textAreas.Max(x => x.Width);
+            var height = textAreas.Sum(x => x.Height) + (textAreas.Count - 1) * margin;
+            List<DrawArea> drawAreas = new List<DrawArea>();
+            for (int y = 0; y < yLen && continueY; y += step)
+            {
+                for (int x = 0; x < xLen; x += step)
+                {
+                    if (x + width >= xLen) //超出画布长
+                    {
+                        break;
+                    }
+                    if (y + height >= yLen) //超出画布宽
+                    {
+                        continueY = false;
+                        break;
+                    }
+                    if (DrawHelper.CheckAreaAvailable(pixels, x, y, width, height, minFontSize))
+                    {
+                        var drawArea = new DrawArea(textAreas, drawType, words, fontSize, x, y, width, height, margin, isVertical);
+                        drawAreas.Add(drawArea);
+                    }
+                }
+            }
+            return drawAreas;
+        }
+
+        /// <summary>
+        /// 计算绘制文本所需要的长和宽
+        /// </summary>
+        /// <param name="words"></param>
+        /// <param name="fontSize"></param>
+        /// <param name="isVertical"></param>
+        /// <param name="drawType"></param>
+        /// <returns></returns>
+        private List<TextArea> GetTextAreas(string words, int fontSize, bool isVertical, ref DrawType drawType)
+        {
+            var textRect = GetTextRect(words, fontSize);
+            if (isVertical && words.ContainNumberOrLetter())
+            {
+                drawType = DrawType.Rotational;
+                TextArea area = new TextArea(textRect, textRect.Height, textRect.Width, words);
+                return new() { area };
+            }
+            if (isVertical == false)
+            {
+                drawType = DrawType.Horizontal;
+                TextArea area = new TextArea(textRect, textRect.Width, textRect.Height, words);
+                return new() { area };
+            }
+            drawType = DrawType.Vertical;
+            var textAreas = new List<TextArea>();
+            foreach (var word in words)
+            {
+                TextArea area = new TextArea(textRect, textRect.Width, textRect.Height, word.ToString());
+                textAreas.Add(area);
+            }
+            return textAreas;
+        }
+
+        /// <summary>
+        /// 计算横向绘制文本所需要的长和宽
+        /// </summary>
+        /// <param name="words"></param>
+        /// <param name="fontSize"></param>
+        /// <returns></returns>
+        private SKRect GetTextRect(string words, int fontSize)
+        {
+            using SKPaint paint = CreatePaint(fontSize);
+            SKRect textRect = new SKRect();
+            paint.MeasureText(words, ref textRect);
+            return textRect;
+        }
+
+        /// <summary>
+        /// 创建画笔
+        /// </summary>
+        /// <param name="fontSize"></param>
+        /// <returns></returns>
+        private SKPaint CreatePaint(float fontSize)
+        {
+            return new()
+            {
+                FakeBoldText = false,
+                Color = Colors.Length == 0 ? RandomHelper.RandomColor() : Colors.Random(),
+                IsAntialias = true,
+                Style = SKPaintStyle.StrokeAndFill,
+                TextAlign = SKTextAlign.Left,
+                TextSize = fontSize,
+                Typeface = Typeface
+            };
+        }
+
+        /// <summary>
+        /// 释放资源
+        /// </summary>
+        public void Dispose()
+        {
+            if (Typeface is not null)
+            {
+                Typeface.Dispose();
+            }
         }
 
     }
