@@ -15,22 +15,48 @@ namespace WordCloud.Helper
         /// <exception cref="Exception"></exception>
         internal static void DrawText(this SKCanvas canvas, DrawArea drawArea, SKPaint paint)
         {
-            if (drawArea.DrawType == DrawType.Vertical)
+            if (drawArea.DrawType == DrawType.Horizontal)
             {
-                DrawVerticalText(canvas, drawArea, paint);
+                canvas.DrawHorizontalText(drawArea, paint);
                 return;
             }
             if (drawArea.DrawType == DrawType.Rotational)
             {
-                DrawRotationalText(canvas, drawArea, paint);
+                canvas.DrawRotationalText(drawArea, paint);
                 return;
             }
-            if (drawArea.DrawType == DrawType.Horizontal)
+            if (drawArea.DrawType == DrawType.Vertical)
             {
-                DrawHorizontalText(canvas, drawArea, paint);
+                canvas.DrawVerticalText(drawArea, paint);
                 return;
             }
             throw new Exception($"未定义文字绘制方式:{drawArea.DrawType}");
+        }
+
+        /// <summary>
+        /// 绘制水平文字
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="drawArea"></param>
+        /// <param name="paint"></param>
+        internal static void DrawHorizontalText(this SKCanvas canvas, DrawArea drawArea, SKPaint paint)
+        {
+            canvas.DrawText(drawArea.TextArea.Text, drawArea.StartX, drawArea.StartY + drawArea.Height - drawArea.TextArea.TextRect.Bottom, paint);
+        }
+
+        /// <summary>
+        /// 绘制旋转文字
+        /// </summary>
+        /// <param name="canvas"></param>
+        /// <param name="drawArea"></param>
+        /// <param name="paint"></param>
+        internal static void DrawRotationalText(this SKCanvas canvas, DrawArea drawArea, SKPaint paint)
+        {
+            using SKPath path = new SKPath();
+            TextArea textArea = drawArea.TextArea;
+            path.MoveTo(drawArea.StartX + textArea.TextRect.Bottom, drawArea.StartY);
+            path.LineTo(drawArea.StartX + textArea.TextRect.Bottom, drawArea.EndY);
+            canvas.DrawTextOnPath(drawArea.TextArea.Text, path, new(), paint);
         }
 
         /// <summary>
@@ -43,38 +69,25 @@ namespace WordCloud.Helper
         {
             int startX = drawArea.StartX;
             int startY = drawArea.StartY;
-            foreach (var textArea in drawArea.TextAreas)
+            var textArea = drawArea.TextArea;
+            foreach (var item in textArea.WordRects)
             {
-                canvas.DrawText(textArea.Words, startX, startY + textArea.Height - textArea.TextRect.Bottom, paint);
-                startY += textArea.Height + drawArea.Margin;
+                canvas.DrawText(item.Word.ToString(), startX, startY + item.Rect.Height - item.Rect.Bottom, paint);
+                startY += item.Height + textArea.VerticalMargin;
             }
         }
 
         /// <summary>
-        /// 绘制翻转文字
+        /// 计算横向绘制文本的长和宽
         /// </summary>
-        /// <param name="canvas"></param>
-        /// <param name="drawArea"></param>
         /// <param name="paint"></param>
-        internal static void DrawRotationalText(this SKCanvas canvas, DrawArea drawArea, SKPaint paint)
+        /// <param name="word"></param>
+        /// <returns></returns>
+        internal static SKRect GetTextRect(this SKPaint paint, string word)
         {
-            using SKPath path = new SKPath();
-            TextArea textArea = drawArea.TextAreas.First();
-            path.MoveTo(drawArea.StartX + textArea.TextRect.Bottom, drawArea.StartY);
-            path.LineTo(drawArea.StartX + textArea.TextRect.Bottom, drawArea.EndY);
-            canvas.DrawTextOnPath(drawArea.Words, path, new(), paint);
-        }
-
-        /// <summary>
-        /// 绘制水平文字
-        /// </summary>
-        /// <param name="canvas"></param>
-        /// <param name="drawArea"></param>
-        /// <param name="paint"></param>
-        internal static void DrawHorizontalText(this SKCanvas canvas, DrawArea drawArea, SKPaint paint)
-        {
-            TextArea textArea = drawArea.TextAreas.First();
-            canvas.DrawText(drawArea.Words, drawArea.StartX, drawArea.StartY + drawArea.Height - textArea.TextRect.Bottom, paint);
+            SKRect textRect = new SKRect();
+            paint.MeasureText(word, ref textRect);
+            return textRect;
         }
 
         /// <summary>
@@ -150,7 +163,7 @@ namespace WordCloud.Helper
         /// <param name="height"></param>
         /// <param name="minFontSize"></param>
         /// <returns></returns>
-        internal static bool CheckAreaAvailable(this bool[,] pixels, int startX, int startY, int width, int height, int minFontSize)
+        internal static bool CheckAvailable(this bool[,] pixels, int startX, int startY, int width, int height, int minFontSize)
         {
             for (int y = startY; y <= startY + height; y++)
             {

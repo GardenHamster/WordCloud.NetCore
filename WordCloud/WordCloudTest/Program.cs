@@ -7,19 +7,19 @@ var wordWeightPairs2 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWei
 var wordItems1 = wordWeightPairs1.Select(o => o.Word).ToList();
 var wordItems2 = wordWeightPairs2.Select(o => o.Word).ToList();
 
-var step = 3;
+var debug = false;
 var fontFile = new FileInfo("Fonts\\hywenhei85w.ttf");
 var maskFile = new FileInfo("Mask\\mask.png");
-var wordCloud = new WordCloud.WordCloud(fontFile, true, step);
-var debug = false;
 
 if (debug == true)
 {
+    using var wordCloud = new WordCloud.WordCloud(fontFile, true, 3);
     await wordCloud.Draw(wordItems1, 1000, 1000, "E:\\test\\wordcloud.jpg");
 }
 
 if (debug == false)
 {
+    using var wordCloud = new WordCloud.WordCloud(fontFile, true, 3);
     Task task1 = wordCloud.Draw(wordItems1, 500, 1200, "E:\\test\\wordcloud1.jpg");
     Task task2 = wordCloud.Draw(wordItems1, 1200, 500, "E:\\test\\wordcloud2.jpg");
     Task task3 = wordCloud.Draw(wordItems1, 1000, 1000, "E:\\test\\wordcloud3.jpg");

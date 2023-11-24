@@ -4,33 +4,21 @@ namespace WordCloud.Models
 {
     internal class DrawArea
     {
-        public string Words { get; set; }
-        public int StartX { get; init; }
-        public int StartY { get; init; }
-        public int EndX { get; init; }
-        public int EndY { get; init; }
-        public int Width { get; init; }
-        public int Height { get; init; }
-        public int Margin { get; init; }
-        public bool IsVertical { get; init; }
-        public int FontSize { get; init; }
-        public DrawType DrawType { get; set; }
-        public List<TextArea> TextAreas { get; init; }
+        public ushort StartX { get; init; }
+        public ushort StartY { get; init; }
+        public TextArea TextArea { get; init; }
+        public ushort Width => TextArea.Width;
+        public ushort Height => TextArea.Height;
+        public ushort EndX => (ushort)(StartX + Width);
+        public ushort EndY => (ushort)(StartY + Height);
+        public DrawType DrawType => TextArea.DrawType;
+        
 
-        public DrawArea(List<TextArea> textAreas, DrawType drawType, string words, int fontSize, int startX, int startY, int width, int height, int margin, bool isVertical)
+        public DrawArea(TextArea textArea, ushort startX, ushort startY)
         {
-            this.Words = words;
+            this.TextArea = textArea;
             this.StartX = startX;
             this.StartY = startY;
-            this.Margin = margin;
-            this.Width = width;
-            this.Height = height;
-            this.EndX = startX + Width;
-            this.EndY = startY + Height;
-            this.IsVertical = isVertical;
-            this.TextAreas = textAreas;
-            this.DrawType = drawType;
-            this.FontSize = fontSize;
         }
 
     }
