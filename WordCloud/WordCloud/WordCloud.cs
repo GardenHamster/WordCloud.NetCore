@@ -337,6 +337,7 @@ namespace WordCloud
             {
                 Typeface.Dispose();
             }
+            GC.Collect();
         }
 
     }

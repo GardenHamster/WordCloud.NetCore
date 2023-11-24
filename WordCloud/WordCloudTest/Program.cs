@@ -7,7 +7,7 @@ var wordWeightPairs2 = new JiebaNet.Analyser.TfidfExtractor().ExtractTagsWithWei
 var wordItems1 = wordWeightPairs1.Select(o => o.Word).ToList();
 var wordItems2 = wordWeightPairs2.Select(o => o.Word).ToList();
 
-var debug = false;
+var debug = true;
 var fontFile = new FileInfo("Fonts\\hywenhei85w.ttf");
 var maskFile = new FileInfo("Mask\\mask.png");
 
@@ -29,6 +29,8 @@ if (debug == false)
     Task task7 = wordCloud.Draw(wordItems2, maskFile, 1500, "E:\\test\\wordcloud7.jpg");
     Task.WaitAll(task1, task2, task3, task4, task5, task6, task7);
 }
+
+Console.ReadLine();
 
 
 
