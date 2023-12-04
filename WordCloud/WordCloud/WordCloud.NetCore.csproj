@@ -16,11 +16,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="hthyqzrl.r0o~" />
-	  <None Remove="n0vcjzwd.tff~" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="SkiaSharp" Version="2.80.0" />
 		<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="2.80.0" />
 	</ItemGroup>
